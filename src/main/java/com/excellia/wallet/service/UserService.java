@@ -1,7 +1,6 @@
 package com.excellia.wallet.service;
 
 import com.excellia.wallet.entity.User;
-import com.excellia.wallet.exception.ResourceNotFoundException;
 import com.excellia.wallet.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,10 +14,14 @@ import java.util.List;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    // Setter pour PasswordEncoder (injecté après)
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -48,13 +51,8 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
     }
 
-    public User updateUser(User updatedUser) {
-        User existing = userRepository.findById(updatedUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
-        existing.setFirstName(updatedUser.getFirstName());
-        existing.setLastName(updatedUser.getLastName());
-        existing.setEmail(updatedUser.getEmail());
-        return userRepository.save(existing);
+    public User updateUser(User user) {
+        return userRepository.save(user);
     }
 
     public void deleteUser(User user) {

@@ -8,6 +8,7 @@ import com.excellia.wallet.security.JwtUtil;
 import com.excellia.wallet.service.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,11 +18,18 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthController(AuthenticationManager authenticationManager, UserService userService, JwtUtil jwtUtil) {
+    public AuthController(AuthenticationManager authenticationManager,
+                          UserService userService,
+                          JwtUtil jwtUtil,
+                          PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
+        // Injecter PasswordEncoder dans UserService
+        this.userService.setPasswordEncoder(passwordEncoder);
     }
 
     @PostMapping("/register")

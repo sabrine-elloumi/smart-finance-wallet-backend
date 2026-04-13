@@ -26,27 +26,26 @@ public class BudgetService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Catégorie non trouvée"));
 
-        Budget budget = budgetRepository.findByUserAndCategoryAndMonth(user, category, month)
+        Budget budget = budgetRepository.findByUserAndCategoryAndBudgetMonth(user, category, month)
                 .orElse(new Budget());
 
         budget.setUser(user);
         budget.setCategory(category);
         budget.setAmount(amount);
-        budget.setMonth(month);
+        budget.setBudgetMonth(month);
         if (period != null) {
             budget.setPeriod(period);
         }
 
-        // Le champ 'spent' sera mis à jour par un mécanisme séparé (ex: lors de l'ajout d'une transaction)
         return budgetRepository.save(budget);
     }
 
     public List<Budget> getUserBudgets(User user, YearMonth month) {
-        return budgetRepository.findByUserAndMonthOrderByCategoryAsc(user, month);
+        return budgetRepository.findByUserAndBudgetMonthOrderByCategoryAsc(user, month);
     }
 
     public void updateSpentAmount(User user, Category category, YearMonth month, BigDecimal additionalSpent) {
-        Budget budget = budgetRepository.findByUserAndCategoryAndMonth(user, category, month).orElse(null);
+        Budget budget = budgetRepository.findByUserAndCategoryAndBudgetMonth(user, category, month).orElse(null);
         if (budget != null) {
             BigDecimal newSpent = budget.getSpent().add(additionalSpent);
             budget.setSpent(newSpent);

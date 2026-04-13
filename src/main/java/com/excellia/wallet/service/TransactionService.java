@@ -17,13 +17,16 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
     private final AiClientService aiClientService;
+    private final AnomalyDetectionService anomalyDetectionService;
 
     public TransactionService(TransactionRepository transactionRepository,
                               CategoryRepository categoryRepository,
-                              AiClientService aiClientService) {
+                              AiClientService aiClientService,
+                              AnomalyDetectionService anomalyDetectionService) {
         this.transactionRepository = transactionRepository;
         this.categoryRepository = categoryRepository;
         this.aiClientService = aiClientService;
+        this.anomalyDetectionService = anomalyDetectionService;
     }
 
     public Transaction addTransaction(User user, BigDecimal amount, String description,
@@ -55,14 +58,30 @@ public class TransactionService {
         transaction.setType(type);
         transaction.setTransactionDate(LocalDateTime.now());
         transaction.setAiConfidence(confidence != null ? confidence : 0.95);
-        transaction.setIsAnomaly(false); // à implémenter plus tard
+        transaction.setIsAnomaly(false);
 
-        return transactionRepository.save(transaction);
+        Transaction saved = transactionRepository.save(transaction);
+        
+        // Détection d'anomalie après sauvegarde
+        anomalyDetectionService.detectAnomalies(saved);
+        
+        return saved;
     }
 
     public List<Transaction> getUserTransactions(User user) {
         return transactionRepository.findByUserOrderByTransactionDateDesc(user);
     }
 
-    // Ajoutez ici d'autres méthodes (update, delete, getById) si nécessaire
+    public Transaction updateTransaction(Transaction transaction) {
+        return transactionRepository.save(transaction);
+    }
+
+    public void deleteTransaction(UUID id) {
+        transactionRepository.deleteById(id);
+    }
+
+    public Transaction findById(UUID id) {
+        return transactionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Transaction non trouvée"));
+    }
 }

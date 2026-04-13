@@ -12,16 +12,13 @@ import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
 
-    // Récupérer les transactions d'un utilisateur triées par date décroissante
     List<Transaction> findByUserOrderByTransactionDateDesc(User user);
 
-    // Récupérer les transactions d'un utilisateur par catégorie
-    List<Transaction> findByUserAndCategory(User user, String category);
+    // ⚠️ SUPPRIME cette méthode si elle existe (problème de type)
+    // List<Transaction> findByUserAndCategory(User user, String category);
 
-    // Top 5 des dernières transactions (pour le dashboard)
     List<Transaction> findTop5ByUserOrderByTransactionDateDesc(User user);
 
-    // Somme des dépenses par catégorie pour un utilisateur sur une période
     @Query("SELECT t.category.name, SUM(t.amount) FROM Transaction t " +
            "WHERE t.user = :user AND t.transactionDate BETWEEN :start AND :end AND t.type = 'DEPENSE' " +
            "GROUP BY t.category.name")
@@ -29,7 +26,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                                                         @Param("start") LocalDateTime start,
                                                         @Param("end") LocalDateTime end);
 
-    // Somme des transactions par type (DEPENSE ou REVENU) sur une période
     @Query("SELECT SUM(t.amount) FROM Transaction t " +
            "WHERE t.user = :user AND t.type = :type AND t.transactionDate BETWEEN :start AND :end")
     BigDecimal sumByTypeAndUserAndDateRange(@Param("user") User user,
@@ -37,7 +33,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                                             @Param("start") LocalDateTime start,
                                             @Param("end") LocalDateTime end);
 
-    // Récupérer tous les utilisateurs ayant au moins une transaction (utile pour jobs)
     @Query("SELECT DISTINCT t.user FROM Transaction t")
     List<User> findAllUsersWithTransactions();
 }

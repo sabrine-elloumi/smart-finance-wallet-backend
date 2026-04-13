@@ -30,15 +30,17 @@ public class Budget {
 
     private String period = "MONTHLY";   // MONTHLY, YEARLY
 
-    private YearMonth month;             // YYYY-MM
+    // Renommer la colonne pour éviter le mot réservé SQL 'MONTH'
+    @Column(name = "budget_month")
+    private YearMonth budgetMonth;             // YYYY-MM
 
     private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (month == null) {
-            month = YearMonth.now();
+        if (budgetMonth == null) {
+            budgetMonth = YearMonth.now();
         }
         if (spent == null) {
             spent = BigDecimal.ZERO;
@@ -64,8 +66,8 @@ public class Budget {
     public String getPeriod() { return period; }
     public void setPeriod(String period) { this.period = period; }
 
-    public YearMonth getMonth() { return month; }
-    public void setMonth(YearMonth month) { this.month = month; }
+    public YearMonth getBudgetMonth() { return budgetMonth; }
+    public void setBudgetMonth(YearMonth budgetMonth) { this.budgetMonth = budgetMonth; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
